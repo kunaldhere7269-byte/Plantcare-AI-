@@ -89,6 +89,9 @@ def api_analyze():
     thumb_filename = None
     image_path = None
 
+    sample_plant = None
+    sample_symptoms = None
+
     if sample_name:
         # Pre-configured sample image demo
         sample_map = {
@@ -96,7 +99,7 @@ def api_analyze():
             'healthy_basil': ('sample_healthy_leaf.jpg', 'Sweet Basil (Ocimum basilicum)', 'None, normal healthy check')
         }
         if sample_name in sample_map:
-            s_file, default_plant, default_symptoms = sample_map[sample_name]
+            s_file, sample_plant, sample_symptoms = sample_map[sample_name]
             image_filename = s_file
             thumb_filename = s_file
             image_path = os.path.join(app.config['UPLOAD_FOLDER'], s_file)
@@ -127,12 +130,12 @@ def api_analyze():
         image_path = proc_result['image_path']
 
     # 2. Gather user context
-    plant_name = request.form.get('plant_name', '').strip() or 'Unknown Plant'
+    plant_name = request.form.get('plant_name', '').strip() or sample_plant or 'Unknown Plant'
     plant_age = request.form.get('plant_age', '').strip()
     location = request.form.get('location', '').strip()
     soil_type = request.form.get('soil_type', '').strip()
     watering_frequency = request.form.get('watering_frequency', '').strip()
-    user_symptoms = request.form.get('user_symptoms', '').strip()
+    user_symptoms = request.form.get('user_symptoms', '').strip() or sample_symptoms or ''
 
     metadata = {
         'plant_name': plant_name,
