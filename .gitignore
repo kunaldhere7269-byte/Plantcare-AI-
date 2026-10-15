@@ -11,7 +11,12 @@ ENV/
 # PlantCare AI Database & Uploads
 data/*.db
 data/*.sqlite3
+data/*.db-journal
+data/*.sqlite3-journal
+instance/
+
 uploads/*
+uploads/thumbnails/*
 !uploads/thumbnails/
 !uploads/sample_*.jpg
 !uploads/thumbnails/sample_*.jpg

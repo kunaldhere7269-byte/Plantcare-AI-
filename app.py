@@ -100,6 +100,18 @@ def api_analyze():
             image_filename = s_file
             thumb_filename = s_file
             image_path = os.path.join(app.config['UPLOAD_FOLDER'], s_file)
+            thumb_path = os.path.join(app.config['UPLOAD_FOLDER'], 'thumbnails', s_file)
+            # Ensure sample image exists in uploads directory (copy from static/images if needed)
+            if not os.path.exists(image_path):
+                static_src = os.path.join(os.path.dirname(__file__), 'static', 'images', s_file)
+                if os.path.exists(static_src):
+                    import shutil
+                    shutil.copy(static_src, image_path)
+            if not os.path.exists(thumb_path):
+                static_src = os.path.join(os.path.dirname(__file__), 'static', 'images', s_file)
+                if os.path.exists(static_src):
+                    import shutil
+                    shutil.copy(static_src, thumb_path)
 
     if not image_path:
         if not file or file.filename == '':
@@ -336,6 +348,7 @@ def server_error(e):
 
 
 if __name__ == '__main__':
-    # Local development server
+    # Production container or local direct run
     port = int(os.getenv('PORT', 5000))
-    app.run(host='127.0.0.1', port=port, debug=True)
+    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)

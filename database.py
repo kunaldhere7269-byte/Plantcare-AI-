@@ -8,7 +8,7 @@ import json
 import os
 from datetime import datetime
 
-DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'data', 'plantcare.db')
+DATABASE_PATH = os.getenv('DATABASE_PATH', os.path.join(os.path.dirname(__file__), 'data', 'plantcare.db'))
 
 
 def get_db_connection():
