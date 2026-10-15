@@ -9,8 +9,10 @@ import os
 import json
 import base64
 import requests
-from datetime import datetime
-from services.image_processor import extract_visual_features
+try:
+    from services.image_processor import extract_visual_features
+except ImportError:
+    from .image_processor import extract_visual_features
 
 
 # Plant pathology knowledge base for offline heuristic mode

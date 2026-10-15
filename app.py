@@ -5,6 +5,13 @@ Built for College Community Engagement Project (CEP).
 """
 
 import os
+import sys
+
+# Ensure project root directory is in sys.path
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, send_from_directory
 from dotenv import load_dotenv
 
