@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}Analyze Plant Health – PlantCare AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Breadcrumb & Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-success text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Analyze Plant Health</li>
+                </ol>
+            </nav>
+            <h1 class="display-6 fw-bold text-success mb-2">Plant Photo Analysis & Health Diagnosis</h1>
+            <p class="text-muted">
+                Upload a clear leaf or canopy photograph. Our computer vision and AI pathology models will diagnose visible diseases, evaluate vigor, and recommend eco-friendly care plans.
+            </p>
+        </div>
+    </div>
+
+    <!-- Error Alert Box -->
+    <div id="uploadErrorAlert" class="alert alert-danger alert-dismissible fade show d-none shadow-sm rounded-3 mb-4" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-octagon-fill fs-4 me-3"></i>
+            <div>
+                <strong class="d-block">Upload Warning</strong>
+                <span id="uploadErrorMessage"></span>
+            </div>
+        </div>
+        <button type="button" class="btn-close" onclick="document.getElementById('uploadErrorAlert').classList.add('d-none')" aria-label="Close"></button>
+    </div>
+
+    <!-- Demo Sample Helper Banner -->
+    <div class="card bg-white border-success-subtle p-3 mb-4 shadow-sm rounded-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-lightning-charge-fill text-warning fs-4"></i>
+                <div>
+                    <span class="fw-bold text-dark">Instant College Demonstration Mode:</span>
+                    <span class="text-muted small d-block">Want to test right now without browsing files? Try a pre-loaded sample photo:</span>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-danger btn-sm btn-sample-demo" data-sample="tomato_blight" id="demoTomatoBtn">
+                    <i class="bi bi-virus me-1"></i> Tomato Early Blight Sample
+                </button>
+                <button type="button" class="btn btn-outline-success btn-sm btn-sample-demo" data-sample="healthy_basil" id="demoBasilBtn">
+                    <i class="bi bi-heart-pulse me-1"></i> Healthy Basil Leaf Sample
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Analysis Form Card -->
+    <div class="card card-modern p-4 p-md-5 mb-5 shadow-sm">
+        <form id="analysisForm" enctype="multipart/form-data">
+            <div class="row g-4">
+                <!-- Left Column: Photo Upload & Preview -->
+                <div class="col-lg-6">
+                    <label class="form-label fw-bold text-success mb-2">
+                        <i class="bi bi-camera-fill me-1"></i> Plant Photograph <span class="text-danger">*</span>
+                    </label>
+
+                    <!-- Hidden Real File Input -->
+                    <input type="file" id="plantImageInput" name="plant_image" accept="image/jpeg,image/png,image/webp" class="d-none">
+
+                    <!-- Drag and Drop Dropzone -->
+                    <div id="dropzone" class="dropzone-container">
+                        <div class="dropzone-icon">
+                            <i class="bi bi-cloud-arrow-up-fill"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1">Click to Upload or Drag & Drop</h5>
+                        <p class="text-muted small mb-2">Supports JPG, JPEG, PNG, or WEBP (Max 10 MB)</p>
+                        <span class="btn btn-outline-pc btn-sm px-3 rounded-pill">
+                            <i class="bi bi-folder2-open me-1"></i> Browse Files / Camera
+                        </span>
+                    </div>
+
+                    <!-- Image Preview Container -->
+                    <div id="previewContainer" class="preview-container d-none mt-2">
+                        <img id="previewImg" src="" alt="Selected Plant Preview">
+                        
+                        <!-- Remove / Replace Button -->
+                        <button type="button" id="removeImageBtn" class="btn btn-danger btn-sm preview-overlay-btn rounded-pill shadow" title="Remove or replace image">
+                            <i class="bi bi-trash3-fill me-1"></i> Replace Photo
+                        </button>
+
+                        <!-- Scanning Animation Overlay -->
+                        <div id="scanOverlay" class="scan-overlay d-none">
+                            <div class="scan-laser-line"></div>
+                            <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="visually-hidden">Scanning...</span>
+                            </div>
+                            <h5 class="fw-bold text-white mb-1">Analyzing Foliar Health...</h5>
+                            <p id="scanStatusText" class="text-light small mb-0">Inspecting image resolution & chlorophyll spectrum...</p>
+                        </div>
+                    </div>
+                    <div id="previewMeta" class="text-muted small mt-2 text-center"></div>
+
+                    <!-- Tips link -->
+                    <div class="mt-3 text-center">
+                        <a href="{{ url_for('guide') }}" target="_blank" class="small text-success text-decoration-none">
+                            <i class="bi bi-question-circle me-1"></i> Need help taking a clear photo? View Guide
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Column: Crop Context Form -->
+                <div class="col-lg-6">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-sliders me-1 text-success"></i> Plant Context <span class="badge bg-light text-muted fw-normal ms-1">Optional, improves accuracy</span>
+                    </h5>
+
+                    <!-- Plant Name / Species Input -->
+                    <div class="mb-3">
+                        <label for="plantNameInput" class="form-label small fw-bold">Plant or Crop Name</label>
+                        <input type="text" class="form-control" id="plantNameInput" name="plant_name" list="plantSuggestions" placeholder="e.g. Tomato, Potato, Rose, Sweet Basil, Chili Pepper, Corn...">
+                        <datalist id="plantSuggestions">
+                            <option value="Tomato (Solanum lycopersicum)">
+                            <option value="Sweet Basil (Ocimum basilicum)">
+                            <option value="Potato (Solanum tuberosum)">
+                            <option value="Rose (Rosa spp.)">
+                            <option value="Chili / Bell Pepper (Capsicum)">
+                            <option value="Maize / Corn (Zea mays)">
+                            <option value="Wheat (Triticum)">
+                            <option value="Rice (Oryza sativa)">
+                            <option value="Apple (Malus domestica)">
+                            <option value="Citrus / Lemon">
+                            <option value="Monstera Deliciosa">
+                            <option value="Cucumber / Zucchini">
+                        </datalist>
+                        <div class="form-text small">Leave blank if unknown; the AI will attempt botanical identification.</div>
+                    </div>
+
+                    <!-- Plant Age & Location row -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-sm-6">
+                            <label for="plantAgeInput" class="form-label small fw-bold">Growth Stage / Age</label>
+                            <select class="form-select" id="plantAgeInput" name="plant_age">
+                                <option value="" selected>Not specified</option>
+                                <option value="Seedling / Young sprout">Seedling / Sprout</option>
+                                <option value="Vegetative (Active foliar growth)">Vegetative Stage</option>
+                                <option value="Flowering">Flowering Stage</option>
+                                <option value="Fruiting / Seed development">Fruiting / Grain Fill</option>
+                                <option value="Mature / Harvest readiness">Mature Canopy</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="locationSelect" class="form-label small fw-bold">Growing Location</label>
+                            <select class="form-select" id="locationSelect" name="location">
+                                <option value="" selected>Not specified</option>
+                                <option value="Outdoor Garden / Yard">Outdoor Garden / Yard</option>
+                                <option value="Open Agricultural Field / Farm">Open Farm Field</option>
+                                <option value="Indoor / Balcony Planter">Indoor / Balcony</option>
+                                <option value="Polyhouse / Greenhouse">Polyhouse / Greenhouse</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Soil & Watering row -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-sm-6">
+                            <label for="soilSelect" class="form-label small fw-bold">Soil Type</label>
+                            <select class="form-select" id="soilSelect" name="soil_type">
+                                <option value="" selected>Not specified</option>
+                                <option value="Loamy soil enriched with compost">Loamy with Compost</option>
+                                <option value="Sandy soil / Quick draining">Sandy Soil</option>
+                                <option value="Heavy clay soil">Heavy Clay</option>
+                                <option value="Potting mix with perlite/peat">Potting Mix (Containers)</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="wateringSelect" class="form-label small fw-bold">Watering Routine</label>
+                            <select class="form-select" id="wateringSelect" name="watering_frequency">
+                                <option value="" selected>Not specified</option>
+                                <option value="Daily">Daily</option>
+                                <option value="Every 2-3 Days">Every 2 to 3 Days</option>
+                                <option value="Once a Week">Once a Week</option>
+                                <option value="When top soil feels dry">When Top Soil Feels Dry</option>
+                                <option value="Rainfed / Irregular">Rainfed / Irregular</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Observed Symptoms with Quick Click Badges -->
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold d-block">Visible Symptoms (Click to toggle)</label>
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <span class="symptom-tag-btn" data-value="Yellowing leaves">Yellowing leaves</span>
+                            <span class="symptom-tag-btn" data-value="Brown circular spots">Brown circular spots</span>
+                            <span class="symptom-tag-btn" data-value="White powdery coating">White powdery coating</span>
+                            <span class="symptom-tag-btn" data-value="Wilting / drooping">Wilting / drooping</span>
+                            <span class="symptom-tag-btn" data-value="Holes / insect damage">Holes / insect bites</span>
+                            <span class="symptom-tag-btn" data-value="Curled leaf margins">Curled leaf margins</span>
+                            <span class="symptom-tag-btn" data-value="Reddish rust pustules">Red rust pustules</span>
+                        </div>
+                        <textarea class="form-control" id="userSymptomsInput" name="user_symptoms" rows="2" placeholder="Specific symptoms observed (e.g. spots appeared 3 days ago on bottom leaves)..."></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid">
+                        <button type="submit" id="analyzeBtn" class="btn btn-primary-pc btn-lg" disabled>
+                            <i class="bi bi-cpu-fill me-2"></i> Analyze Plant Health
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Placeholder Container (Populated via JS) -->
+    <div id="resultsContainer" class="d-none"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/analyze.js') }}"></script>
+{% endblock %}

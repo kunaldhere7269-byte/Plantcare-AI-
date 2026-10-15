@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}How to Take a Good Plant Photo – PlantCare AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-success text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Photography Guide</li>
+                </ol>
+            </nav>
+            <h1 class="display-6 fw-bold text-success mb-2">How to Take a Good Plant Photo</h1>
+            <p class="text-muted">
+                AI diagnostic accuracy relies on sharp image details. Follow these simple smartphone photography practices to ensure reliable disease and vigor assessments.
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a href="{{ url_for('analyze') }}" class="btn btn-primary-pc">
+                <i class="bi bi-camera me-1"></i> Ready to Analyze
+            </a>
+        </div>
+    </div>
+
+    <!-- Featured Guide Visual Card -->
+    <div class="card card-modern overflow-hidden p-4 mb-5 shadow-sm">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-6">
+                <img src="{{ url_for('static', filename='images/photo_guide.jpg') }}" alt="Capturing a plant leaf with a smartphone" class="img-fluid rounded-4 shadow-sm w-100">
+            </div>
+            <div class="col-lg-6">
+                <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold small mb-2 text-uppercase">Best Practices</span>
+                <h3 class="fw-bold mb-3">Key Rules for Accurate Plant AI Scans</h3>
+                <ul class="list-unstyled d-flex flex-column gap-3 mb-0">
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-check-circle-fill text-success fs-5 mt-1"></i>
+                        <div>
+                            <strong>Focus Directly on the Leaf Surface:</strong>
+                            <p class="small text-muted mb-0">Tap your smartphone screen on the lesion or discoloration to lock focal sharpness before taking the shot.</p>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-check-circle-fill text-success fs-5 mt-1"></i>
+                        <div>
+                            <strong>Use Diffuse Natural Daylight:</strong>
+                            <p class="small text-muted mb-0">Early morning or late afternoon natural daylight is ideal. Avoid harsh direct flashlight which causes washed-out white spots.</p>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-check-circle-fill text-success fs-5 mt-1"></i>
+                        <div>
+                            <strong>Frame Both Symptoms and Healthy Tissue:</strong>
+                            <p class="small text-muted mb-0">Showing a bit of normal green leaf alongside the diseased brown/yellow area helps the computer vision model calibrate color contrast.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Do's and Don'ts Comparison Grid -->
+    <h3 class="fw-bold text-success mb-4 text-center">Photography Do's and Don'ts</h3>
+    <div class="row g-4 mb-5">
+        <!-- DO's Column -->
+        <div class="col-md-6">
+            <div class="card card-modern p-4 h-100 border-start border-4 border-success shadow-sm">
+                <h5 class="fw-bold text-success mb-3"><i class="bi bi-hand-thumbs-up-fill me-2"></i> DO</h5>
+                <ul class="list-unstyled d-flex flex-column gap-3 mb-0 small">
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-check2 text-success fs-5"></i>
+                        <div><strong>Get within 15–30 cm of the leaf:</strong> Fill at least 60% of the camera frame with the affected foliage.</div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-check2 text-success fs-5"></i>
+                        <div><strong>Photograph the leaf underside if rust or aphids are suspected:</strong> Pustules and colonies reside beneath the leaf cuticle.</div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-check2 text-success fs-5"></i>
+                        <div><strong>Hold the phone steady with both hands:</strong> Even minor motion blur degrades edge detection and lesion contour identification.</div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-check2 text-success fs-5"></i>
+                        <div><strong>Keep the background neutral:</strong> Use your hand or clean ground behind the leaf to prevent background foliage distraction.</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- DON'Ts Column -->
+        <div class="col-md-6">
+            <div class="card card-modern p-4 h-100 border-start border-4 border-danger shadow-sm">
+                <h5 class="fw-bold text-danger mb-3"><i class="bi bi-hand-thumbs-down-fill me-2"></i> DON'T</h5>
+                <ul class="list-unstyled d-flex flex-column gap-3 mb-0 small">
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-x-circle text-danger fs-5"></i>
+                        <div><strong>Don't take wide-angle photos of an entire field:</strong> A distant photo of 50 plants cannot reveal microscopic fungal spots.</div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-x-circle text-danger fs-5"></i>
+                        <div><strong>Don't upload dark or night photos taken without proper illumination:</strong> Dark photos trigger the blur and low-exposure guardrail.</div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-x-circle text-danger fs-5"></i>
+                        <div><strong>Don't capture through dirty greenhouse glass or mesh:</strong> Reflections and grids distort morphological texture metrics.</div>
+                    </li>
+                    <li class="d-flex align-items-start gap-2">
+                        <i class="bi bi-x-circle text-danger fs-5"></i>
+                        <div><strong>Don't upload non-plant objects:</strong> The built-in chlorophyll and texture filter will reject non-botanical images.</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Checklist Card -->
+    <div class="card bg-white p-4 rounded-4 border shadow-sm text-center">
+        <h4 class="fw-bold mb-2">Ready to test your plant photo?</h4>
+        <p class="text-muted small mb-4">You can take a photo with your mobile device or select an existing photo from your gallery.</p>
+        <div>
+            <a href="{{ url_for('analyze') }}" class="btn btn-primary-pc px-4">
+                <i class="bi bi-camera me-1"></i> Go to Analysis Page
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}About College CEP Project – PlantCare AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row align-items-center mb-4">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-success text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">About CEP Project</li>
+                </ol>
+            </nav>
+            <h1 class="display-6 fw-bold text-success mb-2">College Community Engagement Project (CEP)</h1>
+            <p class="text-muted">
+                <strong>PlantCare AI – AI-Assisted Plant Growth Monitoring & Disease Detection System</strong><br>
+                Bridging Artificial Intelligence and Computer Vision with Sustainable Agriculture for Local Communities.
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a href="{{ url_for('analyze') }}" class="btn btn-primary-pc">
+                <i class="bi bi-camera me-1"></i> Try Live Application
+            </a>
+        </div>
+    </div>
+
+    <!-- Executive Summary Card -->
+    <div class="card card-modern p-4 p-md-5 mb-5 shadow-sm border-start border-4 border-success">
+        <h3 class="fw-bold text-success mb-3"><i class="bi bi-award-fill me-2"></i> Project Abstract</h3>
+        <p class="text-muted leading-relaxed mb-3">
+            Crop diseases and nutritional deficiencies cause substantial yield loss among smallholder farmers, school agricultural clubs, and urban terrace gardeners. Conventional diagnostic workflows require access to certified agricultural extension pathologists, which is often logistically inaccessible or cost-prohibitive for rural and semi-urban communities.
+        </p>
+        <p class="text-muted leading-relaxed mb-0">
+            <strong>PlantCare AI</strong> is a full-stack, open-source web application developed as a college Community Engagement Project (CEP). The platform combines accessible web interfaces (HTML5, Bootstrap 5, JavaScript) with a modular Python Flask backend, SQLite database persistence, OpenCV computer vision feature extraction, and dual-mode AI analysis (Live Google Gemini Vision API alongside a transparent Offline Heuristic Knowledge Engine). By democratizing foliar health analysis and promoting Integrated Pest Management (IPM), PlantCare AI fosters community food security and prevents the hazardous overuse of chemical pesticides.
+        </p>
+    </div>
+
+    <!-- Problem Statement & Objectives Grid -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card card-modern p-4 h-100 shadow-sm border-start border-4 border-danger">
+                <h4 class="fw-bold text-danger mb-3"><i class="bi bi-exclamation-triangle-fill me-2"></i> Problem Statement</h4>
+                <ul class="text-muted small d-flex flex-column gap-2 mb-0 ps-3">
+                    <li><strong>Delayed Diagnosis:</strong> Foliar pathogens like Blight and Rust spread exponentially if not caught during initial necrotic spot emergence.</li>
+                    <li><strong>Chemical Over-Reliance:</strong> Without accurate identification, growers frequently spray broad-spectrum synthetic chemical pesticides, causing ecological harm and pollinator decline.</li>
+                    <li><strong>Lack of Historical Record:</strong> Gardeners and small farmers rarely maintain systematic logs of symptom recurrence or watering correlations across growing seasons.</li>
+                    <li><strong>Misleading Digital Tools:</strong> Many mobile apps fabricate certainty on blurry images or claim to measure subterranean soil chemistry from ordinary 2D photos.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card card-modern p-4 h-100 shadow-sm border-start border-4 border-primary">
+                <h4 class="fw-bold text-primary mb-3"><i class="bi bi-bullseye me-2"></i> Project Objectives</h4>
+                <ul class="text-muted small d-flex flex-column gap-2 mb-0 ps-3">
+                    <li><strong>Automated Vision Diagnosis:</strong> Provide instant foliar health screening from smartphone photographs using modern computer vision and vision-language models.</li>
+                    <li><strong>Promote IPM & Ecological Health:</strong> Recommend biological, cultural, and lower-risk treatments before toxic chemicals.</li>
+                    <li><strong>Longitudinal Growth Tracking:</strong> Enable users to store photos, track symptom evolution over time, and compare before/after recovery scans.</li>
+                    <li><strong>Honest, Transparent AI:</strong> Reject non-plant images, flag blurry photos, avoid fabricating confidence scores, and provide a fully functional offline fallback mode.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Architecture Section -->
+    <div class="card card-modern p-4 p-md-5 mb-5 shadow-sm">
+        <h3 class="fw-bold text-success mb-3"><i class="bi bi-diagram-3-fill me-2"></i> System Architecture</h3>
+        <p class="text-muted mb-4">
+            PlantCare AI adopts a clean, layered Model-View-Controller (MVC) architecture with clear separation of responsibilities:
+        </p>
+
+        <div class="row g-4 text-center mb-4">
+            <div class="col-md-3 col-6">
+                <div class="p-3 bg-light rounded-4 h-100 border">
+                    <div class="fs-2 text-success mb-2"><i class="bi bi-browser-chrome"></i></div>
+                    <h6 class="fw-bold mb-1">Presentation Layer</h6>
+                    <p class="small text-muted mb-0">HTML5, CSS3, JavaScript, Bootstrap 5, Chart.js</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-3 bg-light rounded-4 h-100 border">
+                    <div class="fs-2 text-primary mb-2"><i class="bi bi-gear-fill"></i></div>
+                    <h6 class="fw-bold mb-1">Application Layer</h6>
+                    <p class="small text-muted mb-0">Python Flask, Werkzeug, RESTful JSON Endpoints</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-3 bg-light rounded-4 h-100 border">
+                    <div class="fs-2 text-warning mb-2"><i class="bi bi-cpu-fill"></i></div>
+                    <h6 class="fw-bold mb-1">Vision & AI Layer</h6>
+                    <p class="small text-muted mb-0">Pillow, OpenCV, Gemini Vision API / Heuristic Rules</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-3 bg-light rounded-4 h-100 border">
+                    <div class="fs-2 text-info mb-2"><i class="bi bi-database-fill"></i></div>
+                    <h6 class="fw-bold mb-1">Persistence Layer</h6>
+                    <p class="small text-muted mb-0">SQLite 3, Indexed Analyses, Local File Storage</p>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="fw-bold text-dark mt-4 mb-2">Dual-Mode AI Engine Design</h5>
+        <p class="text-muted small mb-0">
+            A key architectural requirement for this college project is avoiding synthetic hallucinations when API keys are absent. When <code>GEMINI_API_KEY</code> is configured in <code>.env</code>, the application connects to Google's state-of-the-art multimodal vision model. When the API key is omitted, the application runs its transparent <strong>Offline Heuristic & Agricultural Pathology Knowledge Base</strong>, evaluating real OpenCV chlorophyll ratios, necrotic spot areas, and user context.
+        </p>
+    </div>
+
+    <!-- Important Files Guide for College Evaluators -->
+    <div class="card card-modern p-4 p-md-5 mb-5 shadow-sm">
+        <h3 class="fw-bold text-success mb-3"><i class="bi bi-folder-fill me-2"></i> File Structure & Component Roles</h3>
+        <p class="text-muted mb-3">A concise breakdown for college professors and evaluators:</p>
+        
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered small">
+                <thead class="table-success">
+                    <tr>
+                        <th style="width: 25%;">File / Path</th>
+                        <th style="width: 20%;">Core Technology</th>
+                        <th>Responsibility</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="fw-bold text-success">app.py</td>
+                        <td>Flask, Jinja2, Werkzeug</td>
+                        <td>Main routing controller, file upload security limits, template rendering, and RESTful API endpoints.</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-success">database.py</td>
+                        <td>SQLite3, JSON</td>
+                        <td>Initializes the database schema, handles CRUD operations, sample record seeding, and computes dashboard statistics.</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-success">services/image_processor.py</td>
+                        <td>Pillow (PIL), OpenCV</td>
+                        <td>Validates uploaded file MIME types, resizes images, creates 400x400 thumbnails, and calculates Laplacian blur variance & HSV chlorophyll/necrotic ratios.</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-success">services/ai_analyzer.py</td>
+                        <td>REST API, Requests, Heuristics</td>
+                        <td>Coordinates AI diagnosis: communicates with Google Gemini Vision API if key exists, or triggers transparent Offline Heuristic Pathology Engine.</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-success">static/css/style.css</td>
+                        <td>Vanilla CSS3, Tokens</td>
+                        <td>Custom agricultural design system, responsive grid, glassmorphic cards, and laser scanning animations.</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-success">static/js/analyze.js</td>
+                        <td>Vanilla JavaScript (ES6)</td>
+                        <td>Client-side file validation, drag-and-drop handler, image preview, animated scan overlay, and asynchronous AJAX submission.</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold text-success">static/js/dashboard.js</td>
+                        <td>Chart.js 4.4</td>
+                        <td>Renders dynamic health status doughnut charts, top crop bar charts, and diagnostic activity trends from live database metrics.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Agricultural Ethics & Limitations -->
+    <div class="card bg-light p-4 rounded-4 border shadow-sm">
+        <h4 class="fw-bold text-dark mb-2"><i class="bi bi-shield-check text-warning me-2"></i> Agricultural Ethics & Disclaimers</h4>
+        <p class="small text-muted mb-0">
+            PlantCare AI is an advisory diagnostic tool developed for educational, academic, and community demonstration purposes. AI models can experience uncertainty with novel pathogens or poor-quality photos. For commercial agricultural operations, always verify disease diagnosis with certified local agronomy extension officers and strictly follow pesticide safety instructions and pre-harvest intervals.
+        </p>
+    </div>
+</div>
+{% endblock %}

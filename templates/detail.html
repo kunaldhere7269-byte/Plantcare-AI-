@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ record.plant_name }} Inspection Report – PlantCare AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Breadcrumb & Navigation -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-success text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('history') }}" class="text-success text-decoration-none">History</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ record.plant_name }}</li>
+                </ol>
+            </nav>
+            <h1 class="display-6 fw-bold text-success mb-1">{{ record.plant_name }}</h1>
+            <div class="text-muted small">
+                <i class="bi bi-calendar3 me-1"></i> Recorded on {{ record.created_at }} &bull; Record #{{ record.id }}
+            </div>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0 d-flex justify-content-md-end gap-2">
+            <button onclick="window.print()" class="btn btn-outline-secondary">
+                <i class="bi bi-printer me-1"></i> Print Report
+            </button>
+            <a href="{{ url_for('compare', id1=record.id) }}" class="btn btn-outline-pc">
+                <i class="bi bi-arrow-left-right me-1"></i> Compare Scan
+            </a>
+        </div>
+    </div>
+
+    <!-- Status & Badges Bar -->
+    <div class="card card-modern p-3 mb-4 shadow-sm">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <!-- Health Badge -->
+                {% if record.health_status == 'Healthy' %}
+                <span class="badge-status badge-healthy fs-6"><i class="bi bi-check-circle-fill"></i> Healthy Plant</span>
+                {% elif record.health_status == 'Potentially Affected' %}
+                <span class="badge-status badge-affected fs-6"><i class="bi bi-exclamation-circle-fill"></i> Potentially Affected</span>
+                {% elif record.health_status == 'Diseased' %}
+                <span class="badge-status badge-diseased fs-6"><i class="bi bi-x-circle-fill"></i> Diseased / Infested</span>
+                {% else %}
+                <span class="badge-status badge-unclear fs-6"><i class="bi bi-question-circle-fill"></i> Unclear Subject</span>
+                {% endif %}
+
+                <!-- Severity Badge -->
+                {% if record.severity and record.severity != 'None' %}
+                <span class="badge {% if record.severity == 'High' %}badge-sev-high{% elif record.severity == 'Moderate' %}badge-sev-moderate{% else %}badge-sev-low{% endif %} fs-6 px-3 py-2 rounded-pill">
+                    Severity: {{ record.severity }}
+                </span>
+                {% endif %}
+
+                <!-- Confidence Badge -->
+                {% if record.confidence_score %}
+                <span class="badge bg-light text-dark border fs-6 px-3 py-2 rounded-pill">
+                    <i class="bi bi-cpu text-success me-1"></i> {{ (record.confidence_score * 100)|round|int }}% AI Confidence
+                </span>
+                {% endif %}
+            </div>
+
+            <!-- Engine Indicator -->
+            <div class="small text-muted">
+                <i class="bi bi-shield-check text-success me-1"></i> <strong>Engine:</strong> {{ record.engine_used }}
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <!-- Left Column: Photograph & Crop Details -->
+        <div class="col-lg-5">
+            <!-- Image Card -->
+            <div class="card card-modern overflow-hidden p-2 mb-4 shadow-sm">
+                <img src="{{ url_for('serve_upload', filename=record.image_filename) }}" 
+                     alt="{{ record.plant_name }}" 
+                     class="w-100 rounded-3 object-fit-contain bg-dark"
+                     style="max-height: 440px;"
+                     onerror="this.src='/static/images/hero_plant_tech.jpg'">
+            </div>
+
+            <!-- Crop Growing Context Details -->
+            <div class="card card-modern p-4 mb-4 shadow-sm">
+                <h5 class="fw-bold text-success mb-3">
+                    <i class="bi bi-card-checklist me-2"></i> Growing Context
+                </h5>
+                <dl class="row mb-0 small">
+                    <dt class="col-5 text-muted">Plant Species:</dt>
+                    <dd class="col-7 fw-semibold">{{ record.plant_name }}</dd>
+
+                    <dt class="col-5 text-muted">Growth Stage:</dt>
+                    <dd class="col-7">{{ record.plant_age or 'Not specified' }}</dd>
+
+                    <dt class="col-5 text-muted">Location:</dt>
+                    <dd class="col-7">{{ record.location or 'Not specified' }}</dd>
+
+                    <dt class="col-5 text-muted">Soil Type:</dt>
+                    <dd class="col-7">{{ record.soil_type or 'Not specified' }}</dd>
+
+                    <dt class="col-5 text-muted">Watering Routine:</dt>
+                    <dd class="col-7">{{ record.watering_frequency or 'Not specified' }}</dd>
+
+                    <dt class="col-5 text-muted">Reported Symptoms:</dt>
+                    <dd class="col-7">{{ record.user_symptoms or 'None reported' }}</dd>
+                </dl>
+            </div>
+
+            <!-- Monitoring Notes Form -->
+            <div class="card card-modern p-4 shadow-sm">
+                <h5 class="fw-bold text-dark mb-2">
+                    <i class="bi bi-pencil-square text-success me-2"></i> Observation Notes
+                </h5>
+                <p class="text-muted small mb-3">Add treatment records, pruning dates, or recovery observations.</p>
+                <form method="POST" action="{{ url_for('save_notes', analysis_id=record.id) }}">
+                    <div class="mb-3">
+                        <textarea class="form-control" name="notes" rows="4" placeholder="Enter notes about treatments applied, weather conditions, or changes noticed...">{{ record.notes or '' }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary-pc btn-sm px-3">
+                        <i class="bi bi-save me-1"></i> Save Observation Notes
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column: Diagnostic Findings & Action Plans -->
+        <div class="col-lg-7">
+            <!-- Disease & Findings Banner -->
+            <div class="card card-modern p-4 mb-4 shadow-sm border-start border-4 border-success">
+                <div class="text-uppercase small fw-bold text-muted mb-1">Pathological Diagnosis</div>
+                <h2 class="text-success fw-bold mb-3">{{ record.disease_name }}</h2>
+
+                <!-- Visible Symptoms -->
+                <h5 class="fw-bold text-dark mb-2"><i class="bi bi-eye text-success me-2"></i> Visible Symptoms Detected</h5>
+                <ul class="mb-4 list-unstyled">
+                    {% for sym in record.visible_symptoms %}
+                    <li class="mb-2"><i class="bi bi-dot text-success fs-5"></i> {{ sym }}</li>
+                    {% else %}
+                    <li class="text-muted small">No adverse visible symptoms detected on foliage.</li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Growth Observations -->
+                <h5 class="fw-bold text-primary mb-2"><i class="bi bi-graph-up-arrow me-2"></i> Growth Observations</h5>
+                <ul class="mb-4 list-unstyled">
+                    {% for gr in record.growth_observations %}
+                    <li class="mb-2"><i class="bi bi-dot text-primary fs-5"></i> {{ gr }}</li>
+                    {% else %}
+                    <li class="text-muted small">Canopy structure appears consistent with normal foliage.</li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Likely Causes -->
+                {% if record.likely_causes %}
+                <h5 class="fw-bold text-warning-emphasis mb-2"><i class="bi bi-lightbulb me-2"></i> Likely Contributing Causes</h5>
+                <ul class="mb-0 list-unstyled">
+                    {% for c in record.likely_causes %}
+                    <li class="mb-2"><i class="bi bi-arrow-right-short text-warning fs-5"></i> {{ c }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+
+            <!-- Immediate Protective Steps (if diseased) -->
+            {% if record.immediate_steps %}
+            <div class="card card-modern p-4 mb-4 shadow-sm border-start border-4 border-danger bg-white">
+                <h5 class="fw-bold text-danger mb-3">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Immediate Protective Steps
+                </h5>
+                <ul class="list-unstyled mb-0">
+                    {% for step in record.immediate_steps %}
+                    <li class="mb-2"><i class="bi bi-check2-circle text-danger me-2"></i> <strong>{{ step }}</strong></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Recommended Treatments & IPM -->
+            <div class="card card-modern p-4 mb-4 shadow-sm">
+                <h5 class="fw-bold text-success mb-3">
+                    <i class="bi bi-shield-plus me-2"></i> Recommended Treatment Options (IPM First)
+                </h5>
+                <ul class="list-unstyled mb-4">
+                    {% for tr in record.treatment_recommendations %}
+                    <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i> {{ tr }}</li>
+                    {% else %}
+                    <li class="text-muted small">No chemical or bio-fungicide interventions needed for healthy foliage.</li>
+                    {% endfor %}
+                </ul>
+
+                <h5 class="fw-bold text-info-emphasis mb-3">
+                    <i class="bi bi-shield-check me-2"></i> Preventive Cultural Measures
+                </h5>
+                <ul class="list-unstyled mb-0">
+                    {% for prev in record.preventive_measures %}
+                    <li class="mb-2"><i class="bi bi-arrow-repeat text-info me-2"></i> {{ prev }}</li>
+                    {% else %}
+                    <li class="text-muted small">Maintain standard garden hygiene and proper aeration.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Personalized Growth Guidelines Grid -->
+            <div class="card card-modern p-4 mb-4 shadow-sm">
+                <h5 class="fw-bold text-success mb-3">
+                    <i class="bi bi-compass me-2"></i> Personalized Growth Guidelines
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="care-grid-card">
+                            <div class="care-grid-icon"><i class="bi bi-droplet-fill text-info"></i></div>
+                            <h6 class="fw-bold mb-1">Watering</h6>
+                            <p class="small text-muted mb-0">{{ record.personalized_care.get('watering', 'Consistent moisture per species requirements.') }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="care-grid-card">
+                            <div class="care-grid-icon"><i class="bi bi-sun-fill text-warning"></i></div>
+                            <h6 class="fw-bold mb-1">Sunlight</h6>
+                            <p class="small text-muted mb-0">{{ record.personalized_care.get('sunlight', 'Provide adequate daylight.') }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="care-grid-card">
+                            <div class="care-grid-icon"><i class="bi bi-moisture text-success"></i></div>
+                            <h6 class="fw-bold mb-1">Soil & Drainage</h6>
+                            <p class="small text-muted mb-0">{{ record.personalized_care.get('soil_drainage', 'Ensure loose soil with proper drainage holes.') }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="care-grid-card">
+                            <div class="care-grid-icon"><i class="bi bi-flower2 text-primary"></i></div>
+                            <h6 class="fw-bold mb-1">Nutrients & Feeding</h6>
+                            <p class="small text-muted mb-0">{{ record.personalized_care.get('nutrients', 'Apply balanced organic nutrients.') }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="care-grid-card">
+                            <div class="care-grid-icon"><i class="bi bi-thermometer-half text-danger"></i></div>
+                            <h6 class="fw-bold mb-1">Climate & Aeration</h6>
+                            <p class="small text-muted mb-0">{{ record.personalized_care.get('temperature_humidity', 'Maintain good ventilation around canopy.') }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="care-grid-card">
+                            <div class="care-grid-icon"><i class="bi bi-calendar2-check text-purple"></i></div>
+                            <h6 class="fw-bold mb-1">Next Monitoring Session</h6>
+                            <p class="small text-muted mb-0">{{ record.personalized_care.get('next_session', 'Re-inspect in 7-10 days.') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agricultural Disclaimer Alert -->
+            <div class="p-3 bg-light rounded-3 text-muted small border">
+                <i class="bi bi-shield-exclamation text-warning me-1"></i>
+                <strong>Safety Guidance:</strong> When using any commercial biological or chemical formulation, always wear protective gloves/eye protection, adhere strictly to product label dosage, and respect pre-harvest intervals.
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Scans of the Same Plant (Timeline Progress) -->
+    {% if related_records %}
+    <div class="card card-modern p-4 shadow-sm mb-4">
+        <h4 class="fw-bold text-success mb-3">
+            <i class="bi bi-clock-history me-2"></i> Other Monitoring Scans for {{ record.plant_name }}
+        </h4>
+        <div class="row g-3">
+            {% for rel in related_records %}
+            <div class="col-md-4">
+                <div class="card h-100 p-2 border rounded-3 bg-light">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="{{ url_for('serve_thumbnail', filename=rel.thumbnail_filename or rel.image_filename) }}" 
+                             alt="{{ rel.plant_name }}" 
+                             class="rounded-2 object-fit-cover" 
+                             style="width: 70px; height: 70px;">
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="small fw-bold text-truncate">{{ rel.created_at[:10] }}</div>
+                            <div class="small text-muted text-truncate">{{ rel.disease_name }}</div>
+                            <a href="{{ url_for('compare', id1=record.id, id2=rel.id) }}" class="small text-primary text-decoration-none">
+                                <i class="bi bi-arrow-left-right me-1"></i> Compare with this scan
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

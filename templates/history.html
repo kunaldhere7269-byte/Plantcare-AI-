@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block title %}Plant Monitoring History – PlantCare AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header & Controls -->
+    <div class="row align-items-center mb-4">
+        <div class="col-md-7">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-success text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Monitoring History</li>
+                </ol>
+            </nav>
+            <h1 class="display-6 fw-bold text-success mb-1">Plant Health Monitoring Journal</h1>
+            <p class="text-muted mb-0">Review past diagnoses, track longitudinal symptom trends, and manage observation notes.</p>
+        </div>
+        <div class="col-md-5 text-md-end mt-3 mt-md-0 d-flex justify-content-md-end gap-2">
+            <a href="{{ url_for('compare') }}" class="btn btn-outline-pc">
+                <i class="bi bi-arrow-left-right me-1"></i> Compare Scans
+            </a>
+            <a href="{{ url_for('analyze') }}" class="btn btn-primary-pc">
+                <i class="bi bi-plus-lg me-1"></i> New Scan
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters & Search Toolbar -->
+    <div class="card card-modern p-3 mb-4 shadow-sm">
+        <form method="GET" action="{{ url_for('history') }}" class="row g-2 align-items-center">
+            <!-- Search Text -->
+            <div class="col-lg-4 col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0" name="q" value="{{ search_query }}" placeholder="Search by plant, symptoms, notes...">
+                </div>
+            </div>
+
+            <!-- Health Status Filter -->
+            <div class="col-lg-3 col-md-3 col-6">
+                <select class="form-select" name="status" onchange="this.form.submit()">
+                    <option value="all" {% if current_status == 'all' %}selected{% endif %}>All Health States</option>
+                    <option value="Healthy" {% if current_status == 'Healthy' %}selected{% endif %}>Healthy Plants</option>
+                    <option value="Potentially Affected" {% if current_status == 'Potentially Affected' %}selected{% endif %}>Potentially Affected</option>
+                    <option value="Diseased" {% if current_status == 'Diseased' %}selected{% endif %}>Diseased / Affected</option>
+                    <option value="Unclear" {% if current_status == 'Unclear' %}selected{% endif %}>Unclear Scans</option>
+                </select>
+            </div>
+
+            <!-- Plant Species Filter -->
+            <div class="col-lg-3 col-md-3 col-6">
+                <select class="form-select" name="plant" onchange="this.form.submit()">
+                    <option value="all" {% if current_plant == 'all' %}selected{% endif %}>All Plant Species</option>
+                    {% for p in distinct_plants %}
+                    <option value="{{ p }}" {% if current_plant == p %}selected{% endif %}>{{ p }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="col-lg-2 col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-success w-100"><i class="bi bi-funnel-fill"></i> Filter</button>
+                {% if search_query or current_status != 'all' or current_plant != 'all' %}
+                <a href="{{ url_for('history') }}" class="btn btn-outline-secondary" title="Reset Filters"><i class="bi bi-x-lg"></i></a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Records Grid -->
+    {% if records %}
+    <div class="row g-4 mb-4">
+        {% for rec in records %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card card-modern h-100 overflow-hidden d-flex flex-column">
+                <!-- Thumbnail with Status Badge -->
+                <div class="position-relative bg-dark text-center" style="height: 200px;">
+                    <img src="{{ url_for('serve_thumbnail', filename=rec.thumbnail_filename or rec.image_filename) }}" 
+                         alt="{{ rec.plant_name }}" 
+                         class="w-100 h-100 object-fit-cover"
+                         onerror="this.src='/static/images/hero_plant_tech.jpg'">
+                    
+                    <!-- Status Badge Floating -->
+                    <div class="position-absolute top-0 start-0 m-2">
+                        {% if rec.health_status == 'Healthy' %}
+                        <span class="badge-status badge-healthy shadow-sm"><i class="bi bi-check-circle-fill"></i> Healthy</span>
+                        {% elif rec.health_status == 'Potentially Affected' %}
+                        <span class="badge-status badge-affected shadow-sm"><i class="bi bi-exclamation-circle-fill"></i> Alert</span>
+                        {% elif rec.health_status == 'Diseased' %}
+                        <span class="badge-status badge-diseased shadow-sm"><i class="bi bi-x-circle-fill"></i> Diseased</span>
+                        {% else %}
+                        <span class="badge-status badge-unclear shadow-sm"><i class="bi bi-question-circle-fill"></i> Unclear</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Severity Badge Floating -->
+                    {% if rec.severity and rec.severity != 'None' %}
+                    <div class="position-absolute top-0 end-0 m-2">
+                        <span class="badge {% if rec.severity == 'High' %}badge-sev-high{% elif rec.severity == 'Moderate' %}badge-sev-moderate{% else %}badge-sev-low{% endif %} shadow-sm">
+                            {{ rec.severity }}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <!-- Date Floating at bottom -->
+                    <div class="position-absolute bottom-0 start-0 w-100 p-2 text-start bg-dark bg-opacity-75 text-white small">
+                        <i class="bi bi-calendar3 me-1"></i> {{ rec.created_at[:16] }}
+                    </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="p-3 d-flex flex-column flex-grow-1">
+                    <h5 class="fw-bold mb-1 text-truncate" title="{{ rec.plant_name }}">{{ rec.plant_name }}</h5>
+                    <div class="text-muted small mb-2 text-truncate">
+                        <strong>Diagnosis:</strong> {{ rec.disease_name }}
+                    </div>
+
+                    {% if rec.location %}
+                    <div class="small text-muted mb-2">
+                        <i class="bi bi-geo-alt me-1 text-success"></i> {{ rec.location }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Symptoms Preview -->
+                    {% if rec.visible_symptoms %}
+                    <div class="small text-muted mb-3 flex-grow-1">
+                        <div class="fw-semibold text-dark">Visible Symptoms:</div>
+                        <ul class="list-unstyled mb-0 ps-1 text-truncate">
+                            {% for s in rec.visible_symptoms[:2] %}
+                            <li class="text-truncate"><i class="bi bi-dot text-success"></i> {{ s }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- Notes Preview -->
+                    {% if rec.notes %}
+                    <div class="p-2 bg-light rounded-2 small text-muted mb-3 border-start border-3 border-success text-truncate">
+                        <i class="bi bi-sticky me-1"></i> {{ rec.notes }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Card Actions -->
+                    <div class="d-flex align-items-center justify-content-between pt-2 border-top mt-auto">
+                        <a href="{{ url_for('view_analysis', analysis_id=rec.id) }}" class="btn btn-outline-pc btn-sm">
+                            <i class="bi bi-eye me-1"></i> Full Report
+                        </a>
+
+                        <div class="d-flex gap-1">
+                            <a href="{{ url_for('compare', id1=rec.id) }}" class="btn btn-light btn-sm text-primary" title="Compare with another scan">
+                                <i class="bi bi-arrow-left-right"></i>
+                            </a>
+
+                            <button type="button" class="btn btn-light btn-sm text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ rec.id }}" title="Delete record">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteModal{{ rec.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ rec.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-0">
+                            <h5 class="modal-title fw-bold text-danger" id="deleteModalLabel{{ rec.id }}">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Record Deletion
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body py-2">
+                            Are you sure you want to delete the monitoring record for <strong>{{ rec.plant_name }}</strong> recorded on <strong>{{ rec.created_at[:16] }}</strong>?
+                        </div>
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form method="POST" action="{{ url_for('delete_record', analysis_id=rec.id) }}">
+                                <button type="submit" class="btn btn-danger">Yes, Delete Record</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="card card-modern text-center py-5 px-3">
+        <div class="text-muted display-4 mb-3"><i class="bi bi-journal-x"></i></div>
+        <h4 class="fw-bold">No Monitoring Records Found</h4>
+        <p class="text-muted max-w-500 mx-auto mb-4">
+            No plant analyses match your search criteria. Take a new plant leaf photograph to start tracking your crop health history.
+        </p>
+        <div>
+            <a href="{{ url_for('analyze') }}" class="btn btn-primary-pc px-4">
+                <i class="bi bi-camera me-1"></i> Scan First Plant Photo
+            </a>
+            {% if search_query or current_status != 'all' or current_plant != 'all' %}
+            <a href="{{ url_for('history') }}" class="btn btn-outline-secondary ms-2 px-3">Clear Filters</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

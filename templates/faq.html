@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Frequently Asked Questions – PlantCare AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb small">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-success text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">FAQ</li>
+                </ol>
+            </nav>
+            <h1 class="display-6 fw-bold text-success mb-2">Frequently Asked Questions</h1>
+            <p class="text-muted">
+                Answers to common technical, agronomic, and project questions regarding PlantCare AI and our college Community Engagement Project.
+            </p>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-lg-8">
+            <div class="accordion accordion-flush card card-modern p-3 shadow-sm" id="faqAccordion">
+                
+                <!-- FAQ 1 -->
+                <div class="accordion-item border-bottom">
+                    <h2 class="accordion-header" id="faqHeading1">
+                        <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1">
+                            <i class="bi bi-patch-question text-success me-2"></i> What is PlantCare AI and what is the College Community Engagement Project (CEP)?
+                        </button>
+                    </h2>
+                    <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted small">
+                            <strong>PlantCare AI</strong> is an applied web-based agricultural intelligence system developed as part of our college Community Engagement Project (CEP). Its primary goal is to address agricultural and horticultural challenges faced by smallholder farmers, local community gardeners, and botany students by democratizing access to automated foliar pathology screening and integrated pest management (IPM) guidance.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="accordion-item border-bottom">
+                    <h2 class="accordion-header" id="faqHeading2">
+                        <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                            <i class="bi bi-cpu text-success me-2"></i> How does the AI diagnose plant diseases from a photo?
+                        </button>
+                    </h2>
+                    <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted small">
+                            When an image is submitted, the system executes a dual-phase analysis:
+                            <ol class="mt-2 mb-2 ps-3">
+                                <li><strong>Pre-processing & Computer Vision:</strong> Using Pillow and OpenCV, the system evaluates image clarity (Laplacian blur variance), verifies chlorophyll coloration (Excess Green index), and detects necrotic/chlorotic pixel distributions.</li>
+                                <li><strong>Multimodal Vision AI / Expert Rules:</strong> If configured with a <code>GEMINI_API_KEY</code>, Google Gemini's multimodal vision model analyzes leaf morphology, lesion contours, and pathogen signs. If offline or unconfigured, the transparent <strong>Offline Heuristic Engine</strong> evaluates visual ratios against an agricultural pathology rule base.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="accordion-item border-bottom">
+                    <h2 class="accordion-header" id="faqHeading3">
+                        <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                            <i class="bi bi-wifi-off text-success me-2"></i> Does PlantCare AI work without an external AI API key?
+                        </button>
+                    </h2>
+                    <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted small">
+                            <strong>Yes!</strong> PlantCare AI is designed with complete honesty and offline reliability. If no external API key is configured in <code>.env</code>, the application operates in transparent <strong>Offline Heuristic Demonstration Mode</strong>. It uses real OpenCV color and texture analysis combined with our expert agricultural pathology knowledge base to generate authentic diagnoses without fabricating fake AI confidence scores.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 4 -->
+                <div class="accordion-item border-bottom">
+                    <h2 class="accordion-header" id="faqHeading4">
+                        <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                            <i class="bi bi-exclamation-diamond text-success me-2"></i> Can an ordinary photo measure exact soil moisture or plant height?
+                        </button>
+                    </h2>
+                    <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted small">
+                            <strong>No, and PlantCare AI never claims to do so.</strong> A 2D smartphone photograph without physical reference calibration cannot scientifically measure subterranean soil chemistry, electrical conductivity (EC), exact soil moisture content, or millimeter plant height. The system strictly distinguishes <em>visible observations</em> (leaf discoloration, lesions, turgor) from factors that require physical user input or field sensors.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 5 -->
+                <div class="accordion-item border-bottom">
+                    <h2 class="accordion-header" id="faqHeading5">
+                        <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse5" aria-expanded="false" aria-controls="faqCollapse5">
+                            <i class="bi bi-shield-shaded text-success me-2"></i> How is user privacy and image data protected?
+                        </button>
+                    </h2>
+                    <div id="faqCollapse5" class="accordion-collapse collapse" aria-labelledby="faqHeading5" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted small">
+                            All uploaded photographs, thumbnails, and analysis records are stored strictly in your local <code>uploads/</code> folder and local SQLite database (<code>data/plantcare.db</code>). No personal data or user images are sent to third-party tracking services or commercial advertising brokers.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 6 -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqHeading6">
+                        <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse6" aria-expanded="false" aria-controls="faqCollapse6">
+                            <i class="bi bi-heart-pulse text-success me-2"></i> Why does PlantCare AI emphasize Integrated Pest Management (IPM)?
+                        </button>
+                    </h2>
+                    <div id="faqCollapse6" class="accordion-collapse collapse" aria-labelledby="faqHeading6" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted small">
+                            Overuse of synthetic chemical pesticides causes severe environmental problems, water contamination, beneficial pollinator loss, and pathogen resistance. PlantCare AI follows an <strong>IPM-first philosophy</strong>: recommending cultural prevention (proper spacing, straw mulching, drip irrigation) and biological treatments (neem oil, Bacillus subtilis, copper soaps) before synthetic chemicals.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Sidebar Quick Info -->
+        <div class="col-lg-4">
+            <div class="card card-modern p-4 mb-4 shadow-sm bg-success-subtle border-success">
+                <h5 class="fw-bold text-success mb-2"><i class="bi bi-chat-quote-fill me-2"></i> Need More Assistance?</h5>
+                <p class="small text-muted mb-3">
+                    Have questions about integrating your own agricultural dataset or configuring Gemini Vision API?
+                </p>
+                <a href="{{ url_for('about') }}" class="btn btn-primary-pc btn-sm w-100 mb-2">
+                    <i class="bi bi-info-circle me-1"></i> Read Project Architecture
+                </a>
+                <a href="{{ url_for('guide') }}" class="btn btn-outline-pc btn-sm w-100">
+                    <i class="bi bi-camera me-1"></i> Photography Best Practices
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
